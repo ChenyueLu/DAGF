@@ -37,12 +37,13 @@ checkpoint = torch.load(load_name, map_location=lambda storage, loc: storage.cud
 model.load_state_dict(checkpoint['state'])
 model.eval()
 
-test_set = ['Middlebury', 'Lu', 'test', 'Sintel'] # , 'Middlebury', 'test', 'Sintel'
+test_set = ['Lu'] # , 'Middlebury', 'test', 'Sintel'
 for test_name in test_set:
     sum_rmse = []
     for gt_name in tqdm.tqdm(sorted(glob.glob('./test_data/{}/gt/*.npy'.format(test_name)))):
         gt_img = np.load(gt_name)
         rgb_img = np.load(gt_name.replace('gt', 'rgb'))
+        gt_name = gt_name.split("/")[-1]
 
         # Following DKN, we use bicubic in PIL to degrade GT image (for bicubic), and crop the border
         # before calculate the RMSE values. (reference: https://github.com/cvlab-yonsei/dkn/issues/1)
@@ -70,16 +71,17 @@ for test_name in test_set:
         lr_img, lr_up, gt_img, rgb_img = lr_img.to(device), lr_up.to(device), gt_img.to(device), rgb_img.to(device)
 
         out = model(lr=lr_img.contiguous(), rgb=rgb_img.contiguous(), lr_up=lr_up.contiguous())[-1]
+        np.save(f"./test_data/{test_name}/pred/{gt_name}", out)
 
 
-        if test_name == 'test':
-            mul_ratio = 100
-        elif test_name == 'Sintel':
-            mul_ratio = 255
-        else:
-            mul_ratio = 1
-
-        rmse, _ = utility.root_mean_sqrt_error(im_pred=out.contiguous(), im_true=gt_img.contiguous(), border=6, mul_ratio=mul_ratio, is_train=False)
-        sum_rmse.append(rmse)
-
-    print('{}: {:.2f}'.format(test_name, np.mean(sum_rmse)))
+    #     if test_name == 'test':
+    #         mul_ratio = 100
+    #     elif test_name == 'Sintel':
+    #         mul_ratio = 255
+    #     else:
+    #         mul_ratio = 1
+    #
+    #     rmse, _ = utility.root_mean_sqrt_error(im_pred=out.contiguous(), im_true=gt_img.contiguous(), border=6, mul_ratio=mul_ratio, is_train=False)
+    #     sum_rmse.append(rmse)
+    #
+    # print('{}: {:.2f}'.format(test_name, np.mean(sum_rmse)))
