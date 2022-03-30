@@ -126,10 +126,12 @@ def np_to_tensor(*args, input_data_range=1.0, process_data_range=1.0):
 
 
 def normalize_tensor(im_pred, im_true):
+    _, _, h, w = im_true.size()
     im_pred, im_true = im_pred.view(im_pred.size(0), -1), im_true.view(im_true.size(0), -1)
     img_min, _ = torch.min(im_true, dim=1, keepdim=True)
     img_max, _ = torch.max(im_true, dim=1, keepdim=True)
     im_pred = im_pred * (img_max - img_min) + img_min
+    im_pred = im_pred.view(h, w)
 
     return im_pred.cpu().detach().numpy()
 
