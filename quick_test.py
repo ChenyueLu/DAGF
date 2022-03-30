@@ -71,9 +71,10 @@ for test_name in test_set:
         lr_img, lr_up, gt_img, rgb_img = lr_img.to(device), lr_up.to(device), gt_img.to(device), rgb_img.to(device)
 
         out = model(lr=lr_img.contiguous(), rgb=rgb_img.contiguous(), lr_up=lr_up.contiguous())[-1]
+        lr_mask = utility.normalize_tensor(lr_img.contiguous(), gt_img.contiguous())
         pred = utility.normalize_tensor(out.contiguous(), gt_img.contiguous())
 
-        np.save(f"./test_data/{test_name}/lr_mask/{gt_name}", lr_img.cpu().detach().numpy())
+        np.save(f"./test_data/{test_name}/lr_mask/{gt_name}", lr_mask)
         np.save(f"./test_data/{test_name}/pred/{gt_name}", pred)
 
 
