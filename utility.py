@@ -125,6 +125,15 @@ def np_to_tensor(*args, input_data_range=1.0, process_data_range=1.0):
     return [_np_to_tensor(a) for a in args]
 
 
+def normalize_tensor(im_pred, im_true):
+    im_pred, im_true = im_pred.view(im_pred.size(0), -1), im_true.view(im_true.size(0), -1)
+    img_min, _ = torch.min(im_true, dim=1, keepdim=True)
+    img_max, _ = torch.max(im_true, dim=1, keepdim=True)
+    im_pred = im_pred * (img_max - img_min) + img_min
+
+    return im_pred.cpu().detach().numpy()
+
+
 def root_mean_sqrt_error(im_pred, im_true, border=6, mul_ratio=100, is_train=False):
     b, c, h, w = im_true.size()
     if not is_train:

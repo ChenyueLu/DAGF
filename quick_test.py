@@ -71,7 +71,9 @@ for test_name in test_set:
         lr_img, lr_up, gt_img, rgb_img = lr_img.to(device), lr_up.to(device), gt_img.to(device), rgb_img.to(device)
 
         out = model(lr=lr_img.contiguous(), rgb=rgb_img.contiguous(), lr_up=lr_up.contiguous())[-1]
-        np.save(f"./test_data/{test_name}/pred/{gt_name}", out.cpu().detach().numpy())
+        pred = utility.normalize_tensor(out.contiguous(), gt_img.contiguous())
+
+        np.save(f"./test_data/{test_name}/pred/{gt_name}", pred)
 
 
     #     if test_name == 'test':
