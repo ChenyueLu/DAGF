@@ -73,6 +73,7 @@ for test_name in test_set:
         out = model(lr=lr_img.contiguous(), rgb=rgb_img.contiguous(), lr_up=lr_up.contiguous())[-1]
         pred = utility.normalize_tensor(out.contiguous(), gt_img.contiguous())
 
+        np.save(f"./test_data/{test_name}/lr_mask/{gt_name}", lr_img.cpu().detach().numpy())
         np.save(f"./test_data/{test_name}/pred/{gt_name}", pred)
 
 
